@@ -1,6 +1,7 @@
 import os
 from glob import glob
 import platform
+import pathlib
 
 from django.core.management import BaseCommand
 
@@ -8,19 +9,21 @@ from MafiAStarApp.models import Song
 
 
 # TODO: Make paths os-independent
+# TODO: Add images somehow
 class Command(BaseCommand):
     """
     Updates the database used by MafiAStarLite. This script automatically checks if any songs have been added to the
     specified path, or if there are records in the MafiAStarLite-DB which have no corresponding folder in the path.
 
     CAUTION: This script will remove all MafiAStarLite-DB records that have no folder specified in the given path -
-    meaning that all UltraStar-songs should be kept in a single folder and its subfolders!
+    meaning that all UltraStar-songs should be kept in a single folder!
     """
 
     def add_arguments(self, parser):
         SONG_DIR = os.path.normpath("C:\\Program Files (x86)\\UltraStar Deluxe\\songs\\*")  # TODO: Change
+        #SONG_DIR = os.path.normpath("Y:\\Karaoke-AG\\Sortierte Songs\\*")
         parser.add_argument("--directories", metavar="folder", nargs='+', default=SONG_DIR,
-                            help='The folder containing the Songs. Scanns folder and recursive subfolders.')
+                            help='The folder containing the Songs. Scans folder and recursive subfolders.')
 
     def handle(self, *args, **options):
         counters = {
@@ -39,12 +42,15 @@ class Command(BaseCommand):
                     artist, song_name = s.split('\\')[-1].split(" - ")
                 except ValueError:
                     # Catches misformatting like "Maroon V -Animals" instead of "Maroon V - Animals"
-                    lst = s.split('\\')[-1].split("-")
-                    artist = lst[0].strip()
-                    song_name = lst[1].strip()
-                if os.path.exists(f"{s}\\{artist} - {song_name}.txt"):
+                    if " " in s:  # Ensure that - is not used as combiner (e.g. "Karaoke-AG")
+                        lst = s.split('\\')[-1].split("-")
+                        artist = lst[0].strip()
+                        song_name = lst[1].strip()
+                    else:
+                        continue
+                if pathlib.Path(f"{s}\\").rglob("*.txt"):
                     txt_exists = True
-                if os.path.exists(f"{s}\\{artist} - {song_name}.mp3"):
+                if pathlib.Path(f"{s}\\").rglob("*.mp3"):
                     mp3_exists = True
                 for f in os.listdir(f"{s}\\"):
                     if f.endswith(".jpg") or f.endswith(".png") or f.endswith(".jpeg"):
@@ -58,9 +64,9 @@ class Command(BaseCommand):
                     lst = s.split('/')[-1].split("-")
                     artist = lst[0].strip()
                     song_name = lst[1].strip()
-                if os.path.exists(f"{s}/{artist} - {song_name}.txt"):
+                if pathlib.Path(f"{s}/").rglob("*.txt"):
                     txt_exists = True
-                if os.path.exists(f"{s}/{artist} - {song_name}.mp3"):
+                if pathlib.Path(f"{s}/").rglob("*.mp3"):
                     mp3_exists = True
                 for f in os.listdir(f"{s}/"):
                     if f.endswith(".jpg") or f.endswith(".png") or f.endswith(".jpeg"):
@@ -84,24 +90,17 @@ class Command(BaseCommand):
                 basepath = basepath[:-2]
             if "Windows" in platform.system():
                 if not os.path.exists(f"{basepath}\\{song_from_db.song_artist} - {song_from_db.song_name}\\") \
-                        or not os.path.exists(
-                    f"{basepath}\\{song_from_db.song_artist} - {song_from_db.song_name}\\{song_from_db.song_artist} - {song_from_db.song_name}.mp3") \
-                        or not os.path.exists(
-                    f"{basepath}\\{song_from_db.song_artist} - {song_from_db.song_name}\\{song_from_db.song_artist} - {song_from_db.song_name}.txt"):
-                    print(f"{basepath}\\{song_from_db.song_artist} - {song_from_db.song_name}\\")
-                    print(
-                        f"Deleted DB entry for: {song_from_db.song_artist} - {song_from_db.song_name}, folder, mp3 or txt missing")
-                    counters['deleted'] += 1
-                    song_from_db.delete()
+                        or not pathlib.Path(f"{basepath}\\{song_from_db.song_artist} - {song_from_db.song_name}\\").rglob("*.mp3") \
+                        or not pathlib.Path(f"{basepath}\\{song_from_db.song_artist} - {song_from_db.song_name}\\").rglob("*.txt"):
+                        print(
+                            f"Deleted DB entry for: {song_from_db.song_artist} - {song_from_db.song_name}, folder, mp3 or txt missing")
+                        counters['deleted'] += 1
+                        song_from_db.delete()
             else:
                 if not os.path.exists(f"{basepath}/{song_from_db.song_artist} - {song_from_db.song_name}/") \
-                        or not os.path.exists(
-                    f"{basepath}/{song_from_db.song_artist} - {song_from_db.song_name}/{song_from_db.song_artist} - {song_from_db.song_name}.mp3") \
-                        or not os.path.exists(
-                    f"{basepath}/{song_from_db.song_artist} - {song_from_db.song_name}/{song_from_db.song_artist} - {song_from_db.song_name}.txt"):
-                    print(f"{basepath}/{song_from_db.song_artist} - {song_from_db.song_name}/")
-                    print(
-                        f"Deleted DB entry for: {song_from_db.song_artist} - {song_from_db.song_name}, folder, mp3 or txt missing")
+                        or not pathlib.Path(f"{basepath}/{song_from_db.song_artist} - {song_from_db.song_name}/").rglob("*.mp3") \
+                        or not pathlib.Path(f"{basepath}/{song_from_db.song_artist} - {song_from_db.song_name}/").rglob("*.txt"):
+                    print(f"Deleted DB entry for: {song_from_db.song_artist} - {song_from_db.song_name}, folder, mp3 or txt missing")
                     counters['deleted'] += 1
                     song_from_db.delete()
         amount_songs_in_ultrastar_db = counters['new'] + counters['unchanged']
