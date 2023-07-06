@@ -17,7 +17,8 @@ from MafiAStarApp.models import Song
 def song_api(request):
     if request.method == 'GET':
         if 'search' not in request.GET:
-            return Song.objects.all().order_by('song_artist')
+            return HttpResponse(serializers.serialize('json', Song.objects.all().order_by('song_artist')),
+                                content_type='application/json')
         else:
             query = request.GET['search']
             query_word_list = query.split()
@@ -27,4 +28,4 @@ def song_api(request):
                     reduce(operator.and_, (Q(song_name__icontains=q) | Q(song_artist__icontains=q)
                                            for q in query_word_list)))).order_by('song_artist')
                 return HttpResponse(serializers.serialize('json', queryset), content_type='application/json')
-        return Song.objects.none()
+        return HttpResponse(serializers.serialize('json', Song.objects.none()), content_type='application/json')
