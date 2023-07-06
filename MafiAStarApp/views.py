@@ -25,6 +25,6 @@ def song_api(request):
             if query_word_list:
                 queryset = queryset.union(Song.objects.filter(
                     reduce(operator.and_, (Q(song_name__icontains=q) | Q(song_artist__icontains=q)
-                                           for q in query_word_list))))
+                                           for q in query_word_list)))).order_by('song_artist')
                 return HttpResponse(serializers.serialize('json', queryset), content_type='application/json')
         return Song.objects.none()
