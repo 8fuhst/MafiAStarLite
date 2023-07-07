@@ -1,6 +1,5 @@
 import os
 from glob import glob
-import platform
 import pathlib
 
 from django.core.management import BaseCommand
