@@ -19,7 +19,6 @@ class Command(BaseCommand):
 
     def add_arguments(self, parser):
         SONG_DIR = os.path.normpath("C:\\Program Files (x86)\\UltraStar Deluxe\\songs\\")  # TODO: Change
-        # SONG_DIR = os.path.normpath("Y:\\Karaoke-AG\\Sortierte Songs\\*")
         parser.add_argument("--directories", metavar="folder", nargs='+', default=SONG_DIR,
                             help='The folder containing the Songs. Scans folder and recursive subfolders.')
 
@@ -32,7 +31,7 @@ class Command(BaseCommand):
             'deleted': 0,
         }
 
-        for s in glob(os.path.join(PATH, '*')):  # glob(options['directories']):
+        for s in glob(os.path.join(PATH, '*')):
             txt_exists = False
             mp3_exists = False
             cover_path = ""
@@ -49,7 +48,7 @@ class Command(BaseCommand):
                     song_name = song_name.strip()
                 else:  # Otherwise skip
                     continue
-            if list(pathlib.Path(os.path.join(s)).rglob("*.txt")):  # pathlib.Path(f"{s}\\").rglob("*.txt"):
+            if list(pathlib.Path(os.path.join(s)).rglob("*.txt")):
                 txt_exists = True
             if list(pathlib.Path(os.path.join(s)).rglob("*.mp3")):
                 mp3_exists = True
