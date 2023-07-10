@@ -7,5 +7,5 @@ from MafiAStarApp import views
 
 urlpatterns = [
     path(r'songs', views.song_api),
-    path(r'', views.song_api)
+    path(r'img', views.img_api)
 ]

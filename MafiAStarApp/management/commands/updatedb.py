@@ -3,6 +3,7 @@ from glob import glob
 import pathlib
 
 from django.core.management import BaseCommand
+from MafiAStarLite.settings import SONG_PATH
 
 from MafiAStarApp.models import Song
 
@@ -17,8 +18,7 @@ class Command(BaseCommand):
     """
 
     def add_arguments(self, parser):
-        SONG_DIR = os.path.normpath("C:\\Program Files (x86)\\UltraStar Deluxe\\songs\\")  # TODO: Change
-        parser.add_argument("--directories", metavar="folder", nargs='+', default=SONG_DIR,
+        parser.add_argument("--directories", metavar="folder", nargs='+', default=SONG_PATH,
                             help='The folder containing the Songs. Scans folder and recursive subfolders.')
 
     def handle(self, *args, **options):
@@ -70,8 +70,6 @@ class Command(BaseCommand):
             elif mp3_exists and txt_exists and Song.objects.filter(song_name=song_name, song_artist=artist):
                 counters['unchanged'] += 1
         for song in Song.objects.all():
-            """if basepath.endswith('*'):
-                basepath = basepath[:-2]"""
             if not os.path.exists(os.path.join(PATH, f"{song.song_artist} - {song.song_name}")):
                 print(f"Deleted DB entry for: {song.song_artist} - {song.song_name}, folder, mp3 or txt missing")
                 counters['deleted'] += 1
