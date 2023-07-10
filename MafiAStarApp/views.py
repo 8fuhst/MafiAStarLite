@@ -1,13 +1,17 @@
 import operator
+import os
 from functools import reduce
 
 from django.core import serializers
+from django.core.paginator import Paginator
 from django.views.decorators.csrf import csrf_exempt  # TODO: remove
-from django.http.response import HttpResponse
+from django.http.response import HttpResponse, FileResponse
 from rest_framework.decorators import api_view
 from django.db.models import Q
 
 from MafiAStarApp.models import Song
+from MafiAStarLite.settings import SONG_PATH
+
 
 # Create your views here.
 
@@ -27,5 +31,30 @@ def song_api(request):
                 queryset = queryset.union(Song.objects.filter(
                     reduce(operator.and_, (Q(song_name__icontains=q) | Q(song_artist__icontains=q)
                                            for q in query_word_list)))).order_by('song_artist')
+                """page_number = request.GET['page']
+                paginator = Paginator(queryset, 10)
+                page_obj = paginator.get_page(page_number)"""
+
                 return HttpResponse(serializers.serialize('json', queryset), content_type='application/json')
         return HttpResponse(serializers.serialize('json', Song.objects.none()), content_type='application/json')
+
+
+@csrf_exempt
+@api_view(['GET'])
+def img_api(request):
+    if request.method == "GET":
+        if request.GET['id'] == 'undefined':
+            return HttpResponse(
+                HttpResponse(serializers.serialize('json', Song.objects.none()), content_type='application/json'))
+        if 'id' in request.GET:
+            query = request.GET['id']
+            song = Song.objects.filter(song_id=query).first()
+            try:
+                img = open(os.path.join(SONG_PATH, song.song_image_file), 'rb')
+                return HttpResponse(img, content_type="image")  # file is closed automatically
+            except FileNotFoundError:
+                return HttpResponse(HttpResponse(serializers.serialize('json', Song.objects.none()), content_type='application/json'))
+            except PermissionError:
+                return HttpResponse(HttpResponse(serializers.serialize('json', Song.objects.none()), content_type='application/json'))
+        return HttpResponse(HttpResponse(serializers.serialize('json', Song.objects.none()), content_type='application/json'))
+    return HttpResponse(HttpResponse(serializers.serialize('json', Song.objects.none()), content_type='application/json'))
