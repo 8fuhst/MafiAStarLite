@@ -29,6 +29,9 @@ class Command(BaseCommand):
                             help='The script will only add songs, no songs will be deleted. Helpful if'
                                  'your song DB is not on the same system as the server, e.g. for'
                                  'storage capacity reasons.')
+        parser.add_argument("--ignorevalidity", action='store_true', help='Disables checking for .mp3 and .txt files in '
+                                                                          'song folders. Helpful if you do not have the '
+                                                                          'song DB on the same system as the server.')
 
     def handle(self, *args, **options):
         PATH = options['directories']
@@ -71,13 +74,18 @@ class Command(BaseCommand):
                     if 'cover' in str(img):
                         cover_path = os.path.relpath(os.path.abspath(img), start=PATH)
 
+            if options['ignorevalidity']:
+                mp3_exists = True
+                txt_exists = True
+
             song = Song(song_name=song_name, song_artist=artist, song_image_file=cover_path)
             if mp3_exists and txt_exists and not Song.objects.filter(song_name=song_name, song_artist=artist):
                 file_logger.info(f"Created DB entry for: {artist} - {song_name}")
                 counters['new'] += 1
                 song.save()
-            elif mp3_exists and txt_exists and Song.objects.filter(song_name=song_name, song_artist=artist):
-                counters['unchanged'] += 1
+            elif (mp3_exists and txt_exists) or options['ignorevalidity']:
+                 if Song.objects.filter(song_name=song_name, song_artist=artist):
+                    counters['unchanged'] += 1
         if not options['nodelete']:
             for song in Song.objects.all():
                 if not os.path.exists(os.path.join(PATH, f"{song.song_artist} - {song.song_name}")):
