@@ -88,7 +88,9 @@ class Command(BaseCommand):
                     counters['unchanged'] += 1
         if not options['nodelete']:
             for song in Song.objects.all():
-                if not os.path.exists(os.path.join(PATH, f"{song.song_artist} - {song.song_name}")):
+                if not os.path.exists(os.path.join(PATH, f"{song.song_artist} - {song.song_name}"))\
+                        or not list(pathlib.Path(os.path.join(PATH, f"{song.song_artist} - {song.song_name}")).rglob("*.mp3"))\
+                        or not list(pathlib.Path(os.path.join(PATH, f"{song.song_artist} - {song.song_name}")).rglob("*.txt")):
                     file_logger.info(f"Deleted DB entry for: {song.song_artist} - {song.song_name}, folder, mp3 or txt missing")
                     counters['deleted'] += 1
                     song.delete()
