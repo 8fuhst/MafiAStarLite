@@ -1,3 +1,4 @@
+import logging
 import os
 from glob import glob
 import pathlib
@@ -6,6 +7,10 @@ from django.core.management import BaseCommand
 from MafiAStarLite.settings import SONG_PATH
 
 from MafiAStarApp.models import Song
+
+
+file_logger = logging.getLogger("file")
+console_logger = logging.getLogger("django")
 
 
 class Command(BaseCommand):
@@ -20,6 +25,13 @@ class Command(BaseCommand):
     def add_arguments(self, parser):
         parser.add_argument("--directories", metavar="folder", nargs='+', default=SONG_PATH,
                             help='The folder containing the Songs. Scans folder and recursive subfolders.')
+        parser.add_argument("--nodelete", action='store_true',
+                            help='The script will only add songs, no songs will be deleted. Helpful if'
+                                 'your song DB is not on the same system as the server, e.g. for'
+                                 'storage capacity reasons.')
+        parser.add_argument("--ignorevalidity", action='store_true', help='Disables checking for .mp3 and .txt files in '
+                                                                          'song folders. Helpful if you do not have the '
+                                                                          'song DB on the same system as the server.')
 
     def handle(self, *args, **options):
         PATH = options['directories']
@@ -62,24 +74,39 @@ class Command(BaseCommand):
                     if 'cover' in str(img):
                         cover_path = os.path.relpath(os.path.abspath(img), start=PATH)
 
+            if options['ignorevalidity']:
+                mp3_exists = True
+                txt_exists = True
+
             song = Song(song_name=song_name, song_artist=artist, song_image_file=cover_path)
             if mp3_exists and txt_exists and not Song.objects.filter(song_name=song_name, song_artist=artist):
-                print(f"Created DB entry for: {artist} - {song_name}")
+                file_logger.info(f"Created DB entry for: {artist} - {song_name}")
                 counters['new'] += 1
                 song.save()
-            elif mp3_exists and txt_exists and Song.objects.filter(song_name=song_name, song_artist=artist):
-                counters['unchanged'] += 1
-        for song in Song.objects.all():
-            if not os.path.exists(os.path.join(PATH, f"{song.song_artist} - {song.song_name}")):
-                print(f"Deleted DB entry for: {song.song_artist} - {song.song_name}, folder, mp3 or txt missing")
-                counters['deleted'] += 1
-                song.delete()
+            elif (mp3_exists and txt_exists) or options['ignorevalidity']:
+                 if Song.objects.filter(song_name=song_name, song_artist=artist):
+                    counters['unchanged'] += 1
+        if not options['nodelete']:
+            for song in Song.objects.all():
+                if not os.path.exists(os.path.join(PATH, f"{song.song_artist} - {song.song_name}"))\
+                        or not list(pathlib.Path(os.path.join(PATH, f"{song.song_artist} - {song.song_name}")).rglob("*.mp3"))\
+                        or not list(pathlib.Path(os.path.join(PATH, f"{song.song_artist} - {song.song_name}")).rglob("*.txt")):
+                    file_logger.info(f"Deleted DB entry for: {song.song_artist} - {song.song_name}, folder, mp3 or txt missing")
+                    counters['deleted'] += 1
+                    song.delete()
         amount_songs_in_ultrastar_db = counters['new'] + counters['unchanged']
         if amount_songs_in_ultrastar_db != Song.objects.count():
-            print(f"Songs in Ultrastar DB: {amount_songs_in_ultrastar_db}")
-            print(f"Songs in App DB: {Song.objects.count()}")
-            print("Mismatch between Songs in App DB and Ultrastar DB. "
+            file_logger.warning(f"Songs in Ultrastar DB: {amount_songs_in_ultrastar_db}")
+            file_logger.warning(f"Songs in App DB: {Song.objects.count()}")
+            file_logger.warning("Mismatch between Songs in App DB and Ultrastar DB. "
                   "Please check the DBs and delete entries where outdated.")
-        print(f"Total songs added: {counters['new']}")
-        print(f"Total songs unchanged: {counters['unchanged']}")
-        print(f"Total songs deleted: {counters['deleted']}")
+            console_logger.warning(f"Songs in Ultrastar DB: {amount_songs_in_ultrastar_db}")
+            console_logger.warning(f"Songs in App DB: {Song.objects.count()}")
+            console_logger.warning("Mismatch between Songs in App DB and Ultrastar DB. "
+                                "Please check the DBs and delete entries where outdated.")
+        file_logger.info(f"Total songs added: {counters['new']}")
+        file_logger.info(f"Total songs unchanged: {counters['unchanged']}")
+        file_logger.info(f"Total songs deleted: {counters['deleted']}")
+        console_logger.info(f"Total songs added: {counters['new']}")
+        console_logger.info(f"Total songs unchanged: {counters['unchanged']}")
+        console_logger.info(f"Total songs deleted: {counters['deleted']}")
