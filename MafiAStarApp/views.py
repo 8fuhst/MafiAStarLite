@@ -32,7 +32,7 @@ def song_api(request):
                     reduce(operator.and_, (Q(song_name__icontains=q) | Q(song_artist__icontains=q)
                                            for q in query_word_list)))).order_by('song_artist')
                 page_number = request.GET['page']
-                paginator = Paginator(queryset, 10)
+                paginator = Paginator(queryset, 9)
                 page_obj = paginator.get_page(page_number)
 
                 return HttpResponse(serializers.serialize('json', page_obj), content_type='application/json')
