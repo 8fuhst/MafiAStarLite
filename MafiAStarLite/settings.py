@@ -21,11 +21,14 @@ SONG_PATH = os.path.normpath("C:\\Program Files (x86)\\UltraStar Deluxe\\songs\\
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-@w^ro2t%ea*g49o!_tg#@6p)6)p2fb@@d*6-x3+0&^qd%gjr*y'
+
+with open('./MafiAStarLite/secret_key.txt') as f:
+    SECRET_KEY = f.read().strip()
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.environ.get('DJANGO_DEBUG', '') != False
 
+# ALLOWED_HOSTS = os.environ.list("DJANGO_ALLOWED_HOSTS",)
 ALLOWED_HOSTS = []
 
 LOGGING = {
@@ -78,14 +81,14 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
-    'corsheaders',
+    # 'corsheaders',
     'MafiAStarApp.apps.MafiastarappConfig'
 ]
 
-CORS_ORIGIN_ALLOW_ALL = True  # TODO: Use whitelist instead in Production!
+# CORS_ORIGIN_ALLOW_ALL = True  # TODO: disable
 
 MIDDLEWARE = [
-    'corsheaders.middleware.CorsMiddleware',
+    # 'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -116,17 +119,25 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'MafiAStarLite.wsgi.application'
 
-
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
+with open('./MafiAStarLite/postgres_credentials.txt') as f:
+    postgres_user = f.readline().strip()
+    postgres_pw = f.readline().strip()
+
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        # 'ENGINE': 'django.db.backends.sqlite3',
+        # 'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'NAME': 'MafiAStarLite',
+        'USER': postgres_user,
+        'PASSWORD': postgres_pw,
+        'HOST': 'localhost',
+        'PORT': '5433'
     }
 }
-
 
 # Password validation
 # https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators
@@ -146,7 +157,6 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-
 # Internationalization
 # https://docs.djangoproject.com/en/4.2/topics/i18n/
 
@@ -157,7 +167,6 @@ TIME_ZONE = 'UTC'
 USE_I18N = True
 
 USE_TZ = True
-
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
