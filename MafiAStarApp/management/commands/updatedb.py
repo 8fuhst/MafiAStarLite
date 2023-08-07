@@ -49,12 +49,12 @@ class Command(BaseCommand):
 
             try:
                 dir_name = os.path.basename(s)
-                artist, song_name = dir_name.split(" - ")
+                artist, song_name = dir_name.split(" - ", 1)
             except ValueError:
                 # Catches misformatting like "Maroon V -Animals" instead of "Maroon V - Animals"
                 if " " in s:  # Ensure that - is not used as combiner (e.g. "Karaoke-AG")
                     dir_name = os.path.basename(s)
-                    artist, song_name = dir_name.split("-")
+                    artist, song_name = dir_name.split("-", 1)
                     artist = artist.strip()
                     song_name = song_name.strip()
                 else:  # Otherwise skip
