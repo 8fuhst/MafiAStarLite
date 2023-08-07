@@ -167,3 +167,5 @@ STATIC_ROOT = '/app/static/'
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+USE_NGINX_X_ACCEL_REDIRECT = env.bool("USE_NGINX_X_ACCEL_REDIRECT", default=False)

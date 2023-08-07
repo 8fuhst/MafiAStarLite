@@ -3,6 +3,7 @@ import os
 from functools import reduce
 import logging
 
+from django.conf import settings
 from django.core import serializers
 from django.core.paginator import Paginator
 from django.views.decorators.csrf import csrf_exempt  # TODO: remove
@@ -50,14 +51,20 @@ def img_api(request):
         if 'id' in request.GET:
             query = request.GET['id']
             song = Song.objects.filter(song_id=query).first()
-            try:
-                img = open(os.path.join(SONG_PATH, song.song_image_file), 'rb')
-                if song.song_image_file.endswith(".png"):
-                    return FileResponse(img, content_type='image/png')
-                return FileResponse(img, content_type='image/jpeg')  # file is closed automatically
-            except FileNotFoundError:
-                return HttpResponse(HttpResponse(serializers.serialize('json', Song.objects.none()), content_type='application/json'))
-            except PermissionError:
-                return HttpResponse(HttpResponse(serializers.serialize('json', Song.objects.none()), content_type='application/json'))
+            if settings.USE_NGINX_X_ACCEL_REDIRECT:
+                response = HttpResponse()
+                del response['Content-Type']
+                response['X-Accel-Redirect'] = os.path.join('/songs_internal', song.song_image_file)
+                return response
+            else:
+                try:
+                    img = open(os.path.join(SONG_PATH, song.song_image_file), 'rb')
+                    if song.song_image_file.endswith(".png"):
+                        return FileResponse(img, content_type='image/png')
+                    return FileResponse(img, content_type='image/jpeg')  # file is closed automatically
+                except FileNotFoundError:
+                    return HttpResponse(HttpResponse(serializers.serialize('json', Song.objects.none()), content_type='application/json'))
+                except PermissionError:
+                    return HttpResponse(HttpResponse(serializers.serialize('json', Song.objects.none()), content_type='application/json'))
         return HttpResponse(HttpResponse(serializers.serialize('json', Song.objects.none()), content_type='application/json'))
     return HttpResponse(HttpResponse(serializers.serialize('json', Song.objects.none()), content_type='application/json'))
