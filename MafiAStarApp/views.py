@@ -54,7 +54,7 @@ def img_api(request):
             if settings.USE_NGINX_X_ACCEL_REDIRECT:
                 response = HttpResponse()
                 del response['Content-Type']
-                response['X-Accel-Redirect'] = os.path.join('/songs_internal', song.song_image_file)
+                response['X-Accel-Redirect'] = os.path.join('/songs_internal', song.song_image_file).encode()
                 return response
             else:
                 try:
