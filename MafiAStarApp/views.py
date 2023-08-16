@@ -33,6 +33,7 @@ def song_api(request):
                 queryset = queryset.union(Song.objects.filter(
                     reduce(operator.and_, (Q(song_name__icontains=q) | Q(song_artist__icontains=q)
                                            for q in query_word_list)))).order_by('song_artist')
+                queryset = queryset.distinct()
                 page_number = request.GET['page']
                 paginator = Paginator(queryset, 12)
                 page_obj = paginator.get_page(page_number)
