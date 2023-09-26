@@ -23,7 +23,7 @@ class Command(BaseCommand):
     """
 
     def add_arguments(self, parser):
-        parser.add_argument("--directories", metavar="folder", nargs='+', default=SONG_PATH,
+        parser.add_argument("--directory", metavar="folder", default=SONG_PATH,
                             help='The folder containing the Songs. Scans folder and recursive subfolders.')
         parser.add_argument("--nodelete", action='store_true',
                             help='The script will only add songs, no songs will be deleted. Helpful if'
@@ -34,7 +34,7 @@ class Command(BaseCommand):
                                                                           'song DB on the same system as the server.')
 
     def handle(self, *args, **options):
-        PATH = options['directories']
+        PATH = options['directory']
 
         counters = {
             'new': 0,
@@ -47,8 +47,14 @@ class Command(BaseCommand):
             mp3_exists = False
             cover_path = ""
 
+            if not os.path.isdir(s):
+                continue
+
             try:
                 dir_name = os.path.basename(s)
+                if "-" not in dir_name:
+                    # Not in correct format, skip
+                    continue
                 artist, song_name = dir_name.split(" - ", 1)
             except ValueError:
                 # Catches misformatting like "Maroon V -Animals" instead of "Maroon V - Animals"
@@ -70,9 +76,9 @@ class Command(BaseCommand):
                 cover_path = ""
                 for img in img_paths:
                     if not cover_path:
-                        cover_path = os.path.relpath(os.path.abspath(img), start=PATH)
+                        cover_path = os.path.relpath(os.path.abspath(img), start=SONG_PATH)
                     if 'cover' in str(img):
-                        cover_path = os.path.relpath(os.path.abspath(img), start=PATH)
+                        cover_path = os.path.relpath(os.path.abspath(img), start=SONG_PATH)
 
             if options['ignorevalidity']:
                 mp3_exists = True
