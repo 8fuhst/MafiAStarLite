@@ -5,6 +5,10 @@ on:
     branches:
       - master
 
+permissions:
+  packages: write
+  contents: read
+
 jobs:
   build-container:
     uses: fsinfuhh/workflows/.github/workflows/build_image.yml@main
