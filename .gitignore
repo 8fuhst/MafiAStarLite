@@ -119,7 +119,7 @@ fabric.properties
 __pycache__/*
 **/__pycache__/
 MafiAStarLite/*.txt
-.env.dev
+backend/.env.dev
 # End of https://www.toptal.com/developers/gitignore/api/pycharm
 .DS_Store
 node_modules
