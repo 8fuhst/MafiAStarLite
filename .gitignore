@@ -118,4 +118,5 @@ fabric.properties
 
 __pycache__/*
 MafiAStarLite/*.txt
+.env.dev
 # End of https://www.toptal.com/developers/gitignore/api/pycharm
