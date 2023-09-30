@@ -8,8 +8,11 @@ django = "==4.1.9"
 djangorestframework = "*"
 environs = {extras = ["django"], version = "*"}
 psycopg2-binary = "*"
+pdfkit = "*"
+markdown = "*"
 
 [dev-packages]
+django-cors-headers = "*"
 
 [requires]
 python_version = "3"

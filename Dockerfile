@@ -2,7 +2,7 @@ FROM debian:bullseye AS base
 
 # Install normal dependencies
 RUN apt-get update
-RUN apt-get -y --no-install-recommends install uwsgi uwsgi-plugin-python3 python3 python3-pip python3-setuptools pipenv nginx
+RUN apt-get -y --no-install-recommends install uwsgi uwsgi-plugin-python3 python3 python3-pip python3-setuptools pipenv nginx wkhtmltopdf
 RUN pip3 install wheel
 
 # Add project code to container

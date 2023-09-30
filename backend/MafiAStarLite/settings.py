@@ -18,7 +18,7 @@ env = Env()
 env.read_env(env.path("MAFIASTAR_ENV_FILE", default=".env"))
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
-BASE_DIR = Path(__file__).resolve().parent.parent
+BASE_DIR = Path(__file__).resolve().parent.parent.parent
 SONG_PATH = env.str("SONG_PATH")
 
 # Quick-start development settings - unsuitable for production

@@ -1,7 +1,6 @@
 import operator
 import os
 from functools import reduce
-import logging
 
 from django.conf import settings
 from django.core import serializers
@@ -10,10 +9,10 @@ from django.views.decorators.csrf import csrf_exempt  # TODO: remove
 from django.http.response import HttpResponse, FileResponse
 from rest_framework.decorators import api_view
 from django.db.models import Q
+import pdfkit
 
 from MafiAStarApp.models import Song
 from MafiAStarLite.settings import SONG_PATH
-
 
 # Create your views here.
 
@@ -59,13 +58,54 @@ def img_api(request):
                 return response
             else:
                 try:
+                    print(os.path.join(SONG_PATH, song.song_image_file))
                     img = open(os.path.join(SONG_PATH, song.song_image_file), 'rb')
                     if song.song_image_file.endswith(".png"):
                         return FileResponse(img, content_type='image/png')
                     return FileResponse(img, content_type='image/jpeg')  # file is closed automatically
                 except FileNotFoundError:
-                    return HttpResponse(HttpResponse(serializers.serialize('json', Song.objects.none()), content_type='application/json'))
+                    return HttpResponse(HttpResponse(serializers.serialize('json', Song.objects.none()),
+                                                     content_type='application/json'))
                 except PermissionError:
-                    return HttpResponse(HttpResponse(serializers.serialize('json', Song.objects.none()), content_type='application/json'))
-        return HttpResponse(HttpResponse(serializers.serialize('json', Song.objects.none()), content_type='application/json'))
-    return HttpResponse(HttpResponse(serializers.serialize('json', Song.objects.none()), content_type='application/json'))
+                    return HttpResponse(HttpResponse(serializers.serialize('json', Song.objects.none()),
+                                                     content_type='application/json'))
+        return HttpResponse(
+            HttpResponse(serializers.serialize('json', Song.objects.none()), content_type='application/json'))
+    return HttpResponse(
+        HttpResponse(serializers.serialize('json', Song.objects.none()), content_type='application/json'))
+
+
+@csrf_exempt
+@api_view(['GET'])
+def songlist_api(request):
+    current_artist = ""
+    first = True
+    pdf_settings = {
+        'page-size': 'Letter',
+        'margin-top': '0.75in',
+        'margin-right': '0.75in',
+        'margin-bottom': '0.75in',
+        'margin-left': '0.75in',
+        'encoding': "UTF-8",
+    }
+    with open("songlist.html", "w") as f:
+        f.write("<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n<title>Songliste</title>\n</head>\n<meta charset=\"utf-8\">\n<body>\n")
+        f.write("<h1 align=\"center\">Songliste</h1>")
+        songs = Song.objects.all().order_by('song_artist', 'song_name').values()
+        for song in songs:
+            if not current_artist == song['song_artist']:
+                if not first:
+                    f.write("</ul>\n")
+                current_artist = song['song_artist']
+                f.write(f"<h3>{current_artist}</h3>\n<ul>\n")
+                first = True
+            f.write(f"<li>{song['song_name']}</li>\n")
+            first = False
+        f.write("</ul>\n</body>\n")
+
+    pdf = pdfkit.from_file("songlist.html", False, options=pdf_settings)
+
+    filename = "songlist.pdf"
+    response = HttpResponse(pdf, content_type='application/pdf')
+    response['Content-Disposition'] = 'attachment; filename="' + filename + '"'
+    return response
