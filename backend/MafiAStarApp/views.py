@@ -5,7 +5,6 @@ from functools import reduce
 from django.conf import settings
 from django.core import serializers
 from django.core.paginator import Paginator
-from django.template.loader import get_template
 from django.views.decorators.csrf import csrf_exempt  # TODO: remove
 from django.http.response import HttpResponse, FileResponse
 from rest_framework.decorators import api_view
@@ -14,7 +13,6 @@ import pdfkit
 
 from MafiAStarApp.models import Song
 from MafiAStarLite.settings import SONG_PATH
-
 
 # Create your views here.
 
@@ -60,6 +58,7 @@ def img_api(request):
                 return response
             else:
                 try:
+                    print(os.path.join(SONG_PATH, song.song_image_file))
                     img = open(os.path.join(SONG_PATH, song.song_image_file), 'rb')
                     if song.song_image_file.endswith(".png"):
                         return FileResponse(img, content_type='image/png')
