@@ -18,7 +18,7 @@ env = Env()
 env.read_env(env.path("MAFIASTAR_ENV_FILE", default=".env"))
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
-BASE_DIR = Path(__file__).resolve().parent.parent.parent
+BASE_DIR = Path(__file__).resolve().parent.parent
 SONG_PATH = env.str("SONG_PATH")
 
 # Quick-start development settings - unsuitable for production
@@ -52,12 +52,6 @@ LOGGING = {
             "class": "logging.StreamHandler",
             "formatter": "simple",
         },
-        "file": {
-            "level": "DEBUG",
-            "class": "logging.FileHandler",
-            "filename": os.path.join(BASE_DIR, 'logs', 'MafiAStarLite.log'),
-            "formatter": "verbose",
-        },
     },
     "loggers": {
         "django": {
@@ -65,11 +59,6 @@ LOGGING = {
             "level": "INFO",
             "propagate": True,
         },
-        "file": {
-            "handlers": ["file"],
-            "level": "DEBUG",
-            "propagate": False,
-        }
     }
 }
 
