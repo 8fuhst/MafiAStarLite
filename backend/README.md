@@ -14,11 +14,11 @@ Clone the repository:
 
 Install pipenv for dependencies and activate pipenv:
   ```
-  pipenv install
   pipenv shell
+  pipenv install
   ```
 
-Enter required data into .env.dev file:
+Create .env.dev file in /backend/ and enter required data:
   ```
   DJANGO_DEBUG=True
   DJANGO_SECRET_KEY=mysecretkey
