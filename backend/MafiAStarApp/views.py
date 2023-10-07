@@ -88,20 +88,20 @@ def songlist_api(request):
         'margin-left': '0.75in',
         'encoding': "UTF-8",
     }
-    with open("songlist.html", "w") as f:
-        f.write("<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n<title>Songliste</title>\n</head>\n<meta charset=\"utf-8\">\n<body>\n")
-        f.write("<h1 align=\"center\">Songliste</h1>")
+    with open("songlist.html", "wb") as f:
+        f.write(b"<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n<title>Songliste</title>\n</head>\n<meta charset=\"utf-8\">\n<body>\n")
+        f.write(b"<h1 align=\"center\">Songliste</h1>")
         songs = Song.objects.all().order_by('song_artist', 'song_name').values()
         for song in songs:
             if not current_artist == song['song_artist']:
                 if not first:
-                    f.write("</ul>\n")
+                    f.write(b"</ul>\n")
                 current_artist = song['song_artist']
-                f.write(f"<h3>{current_artist}</h3>\n<ul>\n")
+                f.write(b"<h3>" + current_artist.encode('utf-8') + b"</h3>\n<ul>\n")
                 first = True
-            f.write(f"<li>{song['song_name']}</li>\n")
+            f.write(b"<li>" + song['song_name'].encode('utf-8') + b"</li>\n")
             first = False
-        f.write("</ul>\n</body>\n")
+        f.write(b"</ul>\n</body>\n")
 
     pdf = pdfkit.from_file("songlist.html", False, options=pdf_settings)
 

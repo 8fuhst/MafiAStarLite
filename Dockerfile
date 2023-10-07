@@ -27,5 +27,6 @@ ADD docker/uwsgi-mafiastar.ini /etc/uwsgi/mafiastar.ini
 ADD docker/nginx.conf /etc/nginx/sites-enabled/default
 
 RUN usermod -u 2009 -g 33 -d /app/backend www-data
+RUN chown -R www-data:www-data /app/backend
 
 CMD /usr/local/bin/run
