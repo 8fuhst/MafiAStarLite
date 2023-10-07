@@ -97,9 +97,9 @@ def songlist_api(request):
                 if not first:
                     f.write(b"</ul>\n")
                 current_artist = song['song_artist']
-                f.write(b"<h3>" + current_artist.encode('utf8') + b"</h3>\n<ul>\n")
+                f.write(b"<h3>" + current_artist.encode('utf-8') + b"</h3>\n<ul>\n")
                 first = True
-            f.write(b"<li>" + song['song_name'].encode('utf8') + b"</li>\n")
+            f.write(b"<li>" + song['song_name'].encode('utf-8') + b"</li>\n")
             first = False
         f.write(b"</ul>\n</body>\n")
 
