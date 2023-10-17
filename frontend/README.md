@@ -7,6 +7,11 @@ This is the frontend for MafiAStarLite. Written in Vue.js 3 and Tailwindcss.
 npm install
 ```
 
+## Create a .env file in /frontend/
+```
+VITE_HOSTNAME=YOUR_BACKEND_HOST:PORT/api/
+```
+
 ### Use for Dev:
 ```
 npm run serve
