@@ -72,14 +72,12 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
-    # 'corsheaders',
     'MafiAStarApp.apps.MafiastarappConfig'
 ]
 
-# CORS_ORIGIN_ALLOW_ALL = True  # TODO: disable
+CORS_ORIGIN_ALLOW_ALL = env.bool("CORS_ENABLED", default=False)  # TODO: disable
 
 MIDDLEWARE = [
-    # 'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -88,6 +86,10 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
+
+if CORS_ORIGIN_ALLOW_ALL:
+    INSTALLED_APPS += ['corsheaders']
+    MIDDLEWARE += ['corsheaders.middleware.CorsMiddleware']
 
 ROOT_URLCONF = 'MafiAStarLite.urls'
 
