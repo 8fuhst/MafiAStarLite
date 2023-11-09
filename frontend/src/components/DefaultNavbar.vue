@@ -1,6 +1,7 @@
 <script setup>
 import {Disclosure, DisclosureButton, DisclosurePanel} from '@headlessui/vue'
 import { Bars3Icon, XMarkIcon } from '@heroicons/vue/24/outline'
+import NavbarButton from "@/components/NavbarButton.vue";
 </script>
 
 <script>
@@ -10,6 +11,9 @@ export default {
   methods: {
     async openSonglist() {
       window.location.href = this.$hostname + "songlist"
+    },
+    async getRandomData() {
+      this.$emit('newRandomSong')
     }
   }
 }
@@ -35,9 +39,14 @@ export default {
           <div class="align-middle pl-2">
             <h4 class="align-middle mt-1 text-xl text-white">MafiAStarLite</h4>
           </div>
-          <div class="hidden items-center sm:ml-6 sm:block ">
-            <div class="flex space-x-4">
-              <button @click="openSonglist" class="mt-1.5 hover:text-gray-400 text-gray-200 transition-colors font-light">Songliste</button>
+          <div class="hidden items-center sm:ml-6 sm:block">
+            <div class="flex">
+              <div class="flex space-x-4 mr-4">
+                <NavbarButton @click="openSonglist" text="Songlist"></NavbarButton>
+              </div>
+              <div class="flex space-x-4 mr-4">
+                <NavbarButton @click="getRandomData" text="Random Song"></NavbarButton>
+              </div>
             </div>
           </div>
         </div>
@@ -46,6 +55,9 @@ export default {
     <DisclosurePanel class="sm:hidden">
       <div class="space-y-1 px-2 pb-3 pt-2">
         <button @click="openSonglist" class="text-gray-300 hover:bg-gray-700 hover:text-white">Songliste</button>
+      </div>
+      <div class="space-y-1 px-2 pb-3 pt-2">
+        <button @click="getRandomData" class="text-gray-300 hover:bg-gray-700 hover:text-white">Random Song</button>
       </div>
     </DisclosurePanel>
   </Disclosure>

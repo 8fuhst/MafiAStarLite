@@ -24,6 +24,7 @@ Create .env.dev file in /backend/ and enter required data:
   DJANGO_SECRET_KEY=mysecretkey
   SONG_PATH=...
   DATABASE_URL=postgres://user:password@localhost/MafiAStarLite
+  CORS_ENABLED=False
   ```
 
 Initialize DB:

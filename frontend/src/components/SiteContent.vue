@@ -3,6 +3,7 @@ import RecordsRack from "@/components/RecordsRack.vue";
 import SearchBox from "@/components/SearchBox.vue";
 import UpdateButton from "@/components/UpdateButton.vue";
 import NoResultsMessage from "@/components/NoResultsMessage.vue";
+import DefaultNavbar from "@/components/DefaultNavbar.vue";
 </script>
 
 <script>
@@ -24,6 +25,11 @@ import NoResultsMessage from "@/components/NoResultsMessage.vue";
         const response = await axios.get(url);
         this.songs = this.songs.concat(response.data)
         this.buttonEnabled = response.data.length === 12;
+      },
+      async randomSong() {
+        const url = this.$hostname + "random"
+        const response = await axios.get(url)
+        this.songs = response.data
       }
     },
     data() {
@@ -38,13 +44,16 @@ import NoResultsMessage from "@/components/NoResultsMessage.vue";
 </script>
 
 <template>
-  <div class="w-full justify-center flex-row flex pt-6 -mb-2">
-    <SearchBox @newSongs="updateSongs"/>
-  </div>
-  <RecordsRack v-if="songs && songs.length !== 0" :displayed-songs="songs"/>
-  <NoResultsMessage v-else-if="songs && query !== ''"/>
-  <div v-if="buttonEnabled" class="flex w-full justify-center">
-    <UpdateButton @click="addSongs"/>
+  <DefaultNavbar @newRandomSong="randomSong"/>
+  <div class="grow">
+    <div class="w-full justify-center flex-row flex pt-6 -mb-2">
+      <SearchBox @newSongs="updateSongs"/>
+    </div>
+    <RecordsRack v-if="songs && songs.length !== 0" :displayed-songs="songs"/>
+    <NoResultsMessage v-else-if="songs && query !== ''"/>
+    <div v-if="buttonEnabled" class="flex w-full justify-center">
+      <UpdateButton @click="addSongs"/>
+    </div>
   </div>
 </template>
 
