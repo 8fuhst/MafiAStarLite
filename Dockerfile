@@ -16,6 +16,7 @@ FROM node:18 AS frontend
 # Build frontend
 ADD frontend /app/frontend
 WORKDIR /app/frontend
+ENV VITE_HOSTNAME=/api/
 RUN npm install
 RUN npm run build
 
