@@ -1,9 +1,6 @@
 <template>
   <div class="flex flex-col min-h-screen min-v-screen">
-    <DefaultNavbar/>
-    <div class="grow">
-      <SiteContent/>
-    </div>
+    <SiteContent/>
     <DefaultFooter/>
   </div>
 </template>

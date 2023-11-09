@@ -1,6 +1,7 @@
 import operator
 import os
 from functools import reduce
+from random import choice
 
 from django.conf import settings
 from django.core import serializers
@@ -10,6 +11,7 @@ from django.http.response import HttpResponse, FileResponse
 from rest_framework.decorators import api_view
 from django.db.models import Q
 import pdfkit
+
 
 from MafiAStarApp.models import Song
 from MafiAStarLite.settings import SONG_PATH
@@ -109,3 +111,13 @@ def songlist_api(request):
     response = HttpResponse(pdf, content_type='application/pdf')
     response['Content-Disposition'] = 'attachment; filename="' + filename + '"'
     return response
+
+@csrf_exempt
+@api_view(['GET'])
+def random_api(request):
+    ids = Song.objects.values_list('song_id', flat=True)
+    random_song_id = choice(ids)
+    random_song = Song.objects.get(song_id=random_song_id)
+    paginator = Paginator([random_song], 12)
+    song_page = paginator.get_page(0)
+    return HttpResponse(serializers.serialize('json', song_page), content_type='application/json')
