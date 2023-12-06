@@ -13,6 +13,7 @@ markdown = "*"
 
 [dev-packages]
 django-cors-headers = "*"
+dj-database-url = "*"
 
 [requires]
 python_version = "3"
