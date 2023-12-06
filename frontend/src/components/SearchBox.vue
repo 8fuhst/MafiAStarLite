@@ -8,10 +8,17 @@ export default {
   methods: {
     async getData(query) {
       await new Promise(r => setTimeout(r, 200));
-      if(this.text === query){
+      if(this.text === query && query !== ""){
         this.$emit('newSongs', query)
       }
     },
+  },
+  watch: {
+    async text(query) {
+      if(query === "") {
+        this.$emit('empty')
+      }
+    }
   },
   data() {
     return {
