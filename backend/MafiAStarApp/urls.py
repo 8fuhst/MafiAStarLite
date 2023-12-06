@@ -9,5 +9,6 @@ urlpatterns = [
     path(r'songs', views.song_api),
     path(r'img', views.img_api),
     path(r'songlist', views.songlist_api),
-    path(r'random', views.random_api)
+    path(r'random', views.random_api),
+    path(r'latest', views.latest_api)
 ]

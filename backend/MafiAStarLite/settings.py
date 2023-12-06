@@ -75,7 +75,7 @@ INSTALLED_APPS = [
     'MafiAStarApp.apps.MafiastarappConfig'
 ]
 
-CORS_ORIGIN_ALLOW_ALL = env.bool("CORS_ENABLED", default=False)  # TODO: disable
+CORS_ORIGIN_ALLOW_ALL = env.bool("CORS_ENABLED", default=False)
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
