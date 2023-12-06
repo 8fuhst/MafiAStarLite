@@ -18,6 +18,7 @@ import DefaultNavbar from "@/components/DefaultNavbar.vue";
         this.songs = response.data;
         this.query = query;
         this.buttonEnabled = response.data.length === 12;
+        this.displayLatest = false;
       },
       async addSongs() {
         this.page++;
@@ -29,15 +30,27 @@ import DefaultNavbar from "@/components/DefaultNavbar.vue";
       async randomSong() {
         const url = this.$hostname + "random"
         const response = await axios.get(url)
-        this.songs = response.data
+        this.songs = response.data;
+        this.displayLatest = false;
+      },
+      async latestSongs() {
+        const url = this.$hostname + "latest"
+        const response = await axios.get(url)
+        this.songs = response.data;
+        this.displayLatest = true;
+        this.buttonEnabled = false;
       }
+    },
+    created() {
+      this.latestSongs();
     },
     data() {
       return {
         songs: undefined,
         query: undefined,
         page: 1,
-        buttonEnabled: false
+        buttonEnabled: false,
+        displayLatest: true,
       }
     },
   }
@@ -47,9 +60,13 @@ import DefaultNavbar from "@/components/DefaultNavbar.vue";
   <DefaultNavbar @newRandomSong="randomSong"/>
   <div class="grow">
     <div class="w-full justify-center flex-row flex pt-6 -mb-2">
-      <SearchBox @newSongs="updateSongs"/>
+      <SearchBox @newSongs="updateSongs" @empty="latestSongs"/>
     </div>
-    <RecordsRack v-if="songs && songs.length !== 0" :displayed-songs="songs"/>
+    <div class="mt-8" v-if="displayLatest">
+      <p class="text-3xl">New Tracks</p>
+      <RecordsRack :displayed-songs="songs"/>
+    </div>
+    <RecordsRack v-else-if="songs && songs.length !== 0" :displayed-songs="songs"/>
     <NoResultsMessage v-else-if="songs && query !== ''"/>
     <div v-if="buttonEnabled" class="flex w-full justify-center">
       <UpdateButton @click="addSongs"/>

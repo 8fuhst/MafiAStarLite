@@ -112,6 +112,7 @@ def songlist_api(request):
     response['Content-Disposition'] = 'attachment; filename="' + filename + '"'
     return response
 
+
 @csrf_exempt
 @api_view(['GET'])
 def random_api(request):
@@ -121,3 +122,12 @@ def random_api(request):
     paginator = Paginator([random_song], 12)
     song_page = paginator.get_page(0)
     return HttpResponse(serializers.serialize('json', song_page), content_type='application/json')
+
+
+@csrf_exempt
+@api_view(['GET'])
+def latest_api(request):
+    last_added_songs_ids = Song.objects.order_by('song_id')
+    paginator = Paginator(last_added_songs_ids, 6)
+    last_added_page = paginator.get_page(0)
+    return HttpResponse(serializers.serialize('json', last_added_page[::-1]), content_type='application/json')
