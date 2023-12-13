@@ -127,7 +127,8 @@ def random_api(request):
 @csrf_exempt
 @api_view(['GET'])
 def latest_api(request):
-    last_added_songs_ids = Song.objects.order_by('song_id')
+    last_added_songs_ids = Song.objects.order_by('-upload_date')
     paginator = Paginator(last_added_songs_ids, 6)
-    last_added_page = paginator.get_page(0)
+    last_added_page = paginator.get_page(1)
+    print(last_added_page)
     return HttpResponse(serializers.serialize('json', last_added_page[::-1]), content_type='application/json')
