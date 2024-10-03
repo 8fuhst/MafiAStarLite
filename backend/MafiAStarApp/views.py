@@ -69,7 +69,7 @@ def img_api(request):
                     print("Sending Default Image...")
                     cwd = Path.cwd()
                     print(os.path.join(cwd, 'resources', 'tape4.jpg'))
-                    img = open(os.path.join(cwd, 'resources', 'tape4.jpg'), 'rb')
+                    img = open(os.path.join(cwd, 'resources', 'tape4.jpg'), 'rb').encode()
                     response = FileResponse(img, content_type='image/jpeg')
                     return response
                 except PermissionError:
