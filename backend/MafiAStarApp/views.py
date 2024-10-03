@@ -10,6 +10,7 @@ from django.views.decorators.csrf import csrf_exempt  # TODO: remove
 from django.http.response import HttpResponse, FileResponse
 from rest_framework.decorators import api_view
 from django.db.models import Q
+from pathlib import Path
 import pdfkit
 
 
@@ -60,14 +61,17 @@ def img_api(request):
                 return response
             else:
                 try:
-                    print(os.path.join(SONG_PATH, song.song_image_file))
                     img = open(os.path.join(SONG_PATH, song.song_image_file), 'rb')
                     if song.song_image_file.endswith(".png"):
                         return FileResponse(img, content_type='image/png')
                     return FileResponse(img, content_type='image/jpeg')  # file is closed automatically
                 except FileNotFoundError:
-                    return HttpResponse(HttpResponse(serializers.serialize('json', Song.objects.none()),
-                                                     content_type='application/json'))
+                    print("Sending Default Image...")
+                    cwd = Path.cwd()
+                    print(os.path.join(cwd, 'resources', 'tape4.jpg'))
+                    img = open(os.path.join(cwd, 'resources', 'tape4.jpg'), 'rb')
+                    response = FileResponse(img, content_type='image/jpeg')
+                    return response
                 except PermissionError:
                     return HttpResponse(HttpResponse(serializers.serialize('json', Song.objects.none()),
                                                      content_type='application/json'))
