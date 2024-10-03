@@ -57,7 +57,13 @@ def img_api(request):
             if settings.USE_NGINX_X_ACCEL_REDIRECT:
                 response = HttpResponse()
                 del response['Content-Type']
-                response['X-Accel-Redirect'] = os.path.join('/songs_internal', song.song_image_file).encode()
+                internal_song_path = os.path.join('/songs_internal', song.song_image_file)
+                if os.path.exists(internal_song_path):
+                    response['X-Accel-Redirect'] = internal_song_path.encode()
+                else:
+                    cwd = Path.cwd()
+                    img = open(os.path.join(cwd, 'resources', 'tape4.jpg'), 'rb')
+                    response = FileResponse(img, content_type='image/jpeg')
                 return response
             else:
                 try:
@@ -66,10 +72,8 @@ def img_api(request):
                         return FileResponse(img, content_type='image/png')
                     return FileResponse(img, content_type='image/jpeg')  # file is closed automatically
                 except FileNotFoundError:
-                    print("Sending Default Image...")
                     cwd = Path.cwd()
-                    print(os.path.join(cwd, 'resources', 'tape4.jpg'))
-                    img = open(os.path.join(cwd, 'resources', 'tape4.jpg'), 'rb').encode()
+                    img = open(os.path.join(cwd, 'resources', 'tape4.jpg'), 'rb')
                     response = FileResponse(img, content_type='image/jpeg')
                     return response
                 except PermissionError:
