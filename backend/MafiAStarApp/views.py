@@ -94,29 +94,45 @@ def img_api(request):
 @api_view(['GET'])
 def songlist_api(request):
     current_artist = ""
-    first = True
+    first_entry = True
+    first_song_in_entry = True
     pdf_settings = {
-        'page-size': 'Letter',
-        'margin-top': '0.75in',
-        'margin-right': '0.75in',
-        'margin-bottom': '0.75in',
-        'margin-left': '0.75in',
+        'page-size': 'A4',
+        'margin-top': '0.5in',
+        'margin-right': '0.7in',
+        'margin-bottom': '0.5in',
+        'margin-left': '0.7in',
         'encoding': "UTF-8",
+        'footer-center': 'Page [page] of [topage]',
+        'header-right': 'Version from [date]',
+        'footer-font-size': '10',
     }
     with open("songlist.html", "wb") as f:
-        f.write(b"<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n<title>Songliste</title>\n</head>\n<meta charset=\"utf-8\">\n<body>\n")
-        f.write(b"<h1 align=\"center\">Songliste</h1>")
+        f.write(b"<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n<title>Songliste</title>\n<meta charset=\"utf-8\">\n<style>table {width: 100%} td {width: 30%} hr {border-top: 1px dotted; border-bottom: none} h3 {margin: 3px;}</style>\n</head>\n<body>\n")
+        f.write(b"<h1 align=\"center\">Songlist</h1>")
         songs = Song.objects.all().order_by('song_artist', 'song_name').values()
         for song in songs:
-            if not current_artist == song['song_artist']:
-                if not first:
-                    f.write(b"</ul>\n")
+            if not current_artist.lower() == song['song_artist'].lower():
+                if not first_entry:
+                    if not first_song_in_entry:
+                        f.write(b"<td></td></tr>")
+                        first_song_in_entry = True
+                    f.write(b"</table>\n<hr>")
                 current_artist = song['song_artist']
-                f.write(b"<h3>" + current_artist.encode('utf-8') + b"</h3>\n<ul>\n")
-                first = True
-            f.write(b"<li>" + song['song_name'].encode('utf-8') + b"</li>\n")
-            first = False
-        f.write(b"</ul>\n</body>\n")
+                f.write(b"<h3>" + current_artist.encode('utf-8') + b"</h3>\n<table>\n")
+                first_entry = True
+            if first_song_in_entry:
+                f.write(b"<tr>")
+            f.write(b"<td>&bull; " + song['song_name'].encode('utf-8') + b"</td>\n")
+            first_entry = False
+            if not first_song_in_entry:
+                f.write(b"</tr>")
+                first_song_in_entry = True
+            else:
+                first_song_in_entry = False
+        if not first_song_in_entry:
+            f.write(b"<td></td>")
+        f.write(b"</tr>\n</table>\n</body>\n")
 
     pdf = pdfkit.from_file("songlist.html", False, options=pdf_settings)
 
