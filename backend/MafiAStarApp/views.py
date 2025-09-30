@@ -73,7 +73,7 @@ def img_api(request):
                 return response
             else:
                 try:
-                    img = open(os.path.join(SONG_PATH, song.song_image_file), 'rb')
+                    img = open(os.path.join(SONG_PATH, song.song_image_file).encode("utf-8"), 'rb')
                     if song.song_image_file.endswith(".png"):
                         return FileResponse(img, content_type='image/png')
                     return FileResponse(img, content_type='image/jpeg')  # file is closed automatically
