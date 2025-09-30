@@ -54,7 +54,7 @@ def img_api(request):
         if 'id' in request.GET:
             query = request.GET['id']
             song = Song.objects.filter(song_id=query).first()
-            if settings.USE_NGINX_X_ACCEL_REDIRECT: # Prod setting
+            if settings.USE_NGINX_X_ACCEL_REDIRECT and False: # Prod setting
                 response = HttpResponse()
                 del response['Content-Type']
                 internal_song_path = os.path.join('/songs_internal', song.song_image_file)
