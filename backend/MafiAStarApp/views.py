@@ -93,6 +93,9 @@ def img_api(request):
 @csrf_exempt
 @api_view(['GET'])
 def songlist_api(request):
+    cwd = Path.cwd()
+    filename = "songlist.pdf"
+    songlist_path = os.path.join(cwd, filename)
     current_artist = ""
     first_entry = True
     first_song_in_entry = True
@@ -134,9 +137,8 @@ def songlist_api(request):
             f.write(b"<td></td>")
         f.write(b"</tr>\n</table>\n</body>\n")
 
-    pdf = pdfkit.from_file("songlist.html", False, options=pdf_settings)
+    pdf = pdfkit.from_file("songlist.html", "songlist.pdf", options=pdf_settings)
 
-    filename = "songlist.pdf"
     response = HttpResponse(pdf, content_type='application/pdf')
     response['Content-Disposition'] = 'attachment; filename="' + filename + '"'
     return response
