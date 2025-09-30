@@ -32,10 +32,23 @@ def song_api(request):
             query_word_list = query.split()
             queryset = Song.objects.none()
             if query_word_list:
-                queryset = queryset.union(Song.objects.filter(
-                    reduce(operator.and_, (Q(song_name__icontains=q) | Q(song_artist__icontains=q)
-                                           for q in query_word_list)))).order_by('song_artist')
+                if not "category" in request.GET:
+                    queryset = queryset.union(Song.objects.filter(
+                        reduce(operator.and_, (Q(song_name__icontains=q) | Q(song_artist__icontains=q)
+                                            for q in query_word_list)))).order_by('song_artist')
+                elif "artist" == request.GET["category"]:
+                    queryset = queryset.union(Song.objects.filter(
+                        reduce(operator.and_, (Q(song_artist__icontains=q) for q in query_word_list)))).order_by('song_artist')
+                elif "title" == request.GET["category"]:
+                        queryset = queryset.union(Song.objects.filter(
+                        reduce(operator.and_, (Q(song_name__icontains=q) for q in query_word_list)))).order_by('song_name')
                 queryset = queryset.distinct()
+                if "sort_by" in request.GET:
+                    sort_key = request.GET["sort_by"]
+                    if "ordering" in request.GET:
+                        if request.GET["ordering"] == "desc":
+                            sort_key = "-" + sort_key
+                    queryset = queryset.order_by(sort_key)
                 page_number = request.GET['page']
                 paginator = Paginator(queryset, 12)
                 page_obj = paginator.get_page(page_number)
