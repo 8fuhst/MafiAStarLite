@@ -86,7 +86,7 @@ def img_api(request):
                     return HttpResponse(HttpResponse(serializers.serialize('json', Song.objects.none()),
                                                      content_type='application/json'))
                 except Exception as e:
-                    return HttpResponse(e)
+                    return HttpResponse(f"Error: {e}\n Traceback: {e.__traceback__}")
         return HttpResponse(
             HttpResponse(serializers.serialize('json', Song.objects.none()), content_type='application/json'))
     return HttpResponse(
