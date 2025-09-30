@@ -54,21 +54,20 @@ def img_api(request):
         if 'id' in request.GET:
             query = request.GET['id']
             song = Song.objects.filter(song_id=query).first()
-            if settings.USE_NGINX_X_ACCEL_REDIRECT and False: # Prod setting
+            if settings.USE_NGINX_X_ACCEL_REDIRECT: # Prod setting
                 response = HttpResponse()
                 del response['Content-Type']
-                internal_song_path = os.path.join('/songs_internal', song.song_image_file)
+                internal_song_path = os.path.join('/songs_internal', song.song_image_file).encode("utf-8")
                 if os.path.exists(internal_song_path):
                     response['X-Accel-Redirect'] = internal_song_path.encode()
-                elif os.path.exists(os.path.join(SONG_PATH, song.song_image_file)):
-                    img = open(os.path.join(SONG_PATH, song.song_image_file), 'rb')
+                elif os.path.exists(os.path.join(SONG_PATH, song.song_image_file).encode("utf-8")):
+                    img = open(os.path.join(SONG_PATH, song.song_image_file).encode("utf-8"), 'rb')
                     if song.song_image_file.endswith(".png"):
                         return FileResponse(img, content_type='image/png')
                     return FileResponse(img, content_type='image/jpeg')
                 else:
                     cwd = Path.cwd()
                     img = open(os.path.join(cwd, 'resources', 'tape4.jpg'), 'rb')
-                    return HttpResponse(os.path.join(SONG_PATH, song.song_image_file))
                     response = FileResponse(img, content_type='image/jpeg')
                 return response
             else:
@@ -85,8 +84,6 @@ def img_api(request):
                 except PermissionError:
                     return HttpResponse(HttpResponse(serializers.serialize('json', Song.objects.none()),
                                                      content_type='application/json'))
-                except Exception as e:
-                    return HttpResponse(f"Error: {e}\n Traceback: {e.__traceback__}")
         return HttpResponse(
             HttpResponse(serializers.serialize('json', Song.objects.none()), content_type='application/json'))
     return HttpResponse(
