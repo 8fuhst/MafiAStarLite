@@ -80,7 +80,6 @@ def img_api(request):
                 except FileNotFoundError:
                     cwd = Path.cwd()
                     img = open(os.path.join(cwd, 'resources', 'tape4.jpg'), 'rb')
-                    return HttpResponse(os.path.join(SONG_PATH, song.song_image_file))
                     response = FileResponse(img, content_type='image/jpeg')
                     return response
                 except PermissionError:
