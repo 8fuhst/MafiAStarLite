@@ -2,6 +2,7 @@
 set -e
 export USER=www-data
 export HOME=/home/www-data
+export PYTHONIOENCODING=utf8
 
 # Migrate database and deploy staticfiles
 python3 /app/backend/manage.py migrate
