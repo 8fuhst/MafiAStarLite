@@ -89,7 +89,7 @@ def img_api(request):
                     if song.song_image_file.endswith(".png"):
                         return FileResponse(img, content_type='image/png')
                     return FileResponse(img, content_type='image/jpeg')  # file is closed automatically
-                except FileNotFoundError:
+                except (FileNotFoundError, IsADirectoryError):
                     cwd = Path.cwd()
                     img = open(os.path.join(cwd, 'resources', 'tape4.jpg'), 'rb')
                     response = FileResponse(img, content_type='image/jpeg')
