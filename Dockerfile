@@ -1,15 +1,15 @@
-FROM debian:bullseye AS base
+FROM ghcr.io/astral-sh/uv:trixie-slim AS base
 
 # Install normal dependencies
 RUN apt-get update
-RUN apt-get -y --no-install-recommends install uwsgi uwsgi-plugin-python3 python3 python3-pip python3-setuptools pipenv nginx wkhtmltopdf
+RUN apt-get -y --no-install-recommends install uwsgi uwsgi-plugin-python3 python3 python3-pip python3-setuptools nginx wkhtmltopdf
 RUN pip3 install wheel
 
 # Add project code to container
 ADD backend /app/backend
 
 # Setup backend
-RUN cd /app/backend && pipenv install --system --deploy --ignore-pipfile
+RUN cd /app/backend && uv sync
 
 FROM node:18 AS frontend
 
