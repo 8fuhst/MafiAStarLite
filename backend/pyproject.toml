@@ -1,0 +1,18 @@
+[project]
+name = "mafiastarlite"
+version = "0.1.0"
+requires-python = ">=3.14"
+dependencies = [
+    "django~=6.0.8",
+    "djangorestframework~=3.18.0",
+    "psycopg2-binary~=2.9.12",
+    "pdfkit~=1.0.0",
+    "environs[django]~=15.2.0"
+]
+
+[dependency-groups]
+dev = [
+    "django-cors-headers~=4.9.0",
+    "ruff",
+    "dj-database-url~=3.1.0"
+]

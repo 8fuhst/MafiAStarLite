@@ -5,8 +5,8 @@ export HOME=/home/www-data
 export PYTHONIOENCODING=utf8
 
 # Migrate database and deploy staticfiles
-python3 /app/backend/manage.py migrate
-python3 /app/backend/manage.py collectstatic --noinput
+uv run /app/backend/manage.py migrate
+uv run /app/backend/manage.py collectstatic --noinput
 chown -R www-data:www-data /app/backend/logs
 
 # Start backend with uWSGI
